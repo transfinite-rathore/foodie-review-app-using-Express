@@ -39,3 +39,20 @@ This project allows users to browse food items from restaurants, add reviews, ra
    ```bash
    git clone https://github.com/transfinite-rathore/foodie-review-app-using-Express.git
    cd foodie-review-app-using-Express
+2. Run the server
+   ``` bash
+   npm build
+### API Endpoints
+- GET /api/restaurant/:restaurantId/foodItems - Get food items by restaurant (supports filters)
+
+- GET /api/restaurant/:restaurantId/foodItems/:foodItemId - Get single food item by ID
+
+- POST /api/restaurant/:restaurantId/foodItems/add - Add new food item (secured)
+
+- PUT /api/restaurant/:restaurantId/foodItems/:foodItemId - Update food item (secured)
+
+- DELETE /api/restaurant/:restaurantId/foodItems/:foodItemId - Delete food item (secured)
+
+- POST /api/restaurant/:restaurantId/foodItems/:foodItemId/categories - Add categories to food item
+
+- DELETE /api/restaurant/:restaurantId/foodItems/:foodItemId/categories - Delete categories from food item
