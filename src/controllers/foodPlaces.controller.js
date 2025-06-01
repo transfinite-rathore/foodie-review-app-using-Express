@@ -5,12 +5,57 @@ import {foodPlaces} from "../models/foodplaces.models.js"
 
 
 async function getRestaurant(req,res){
-    const city= req.body?.city
-    const restrauntList = await foodPlaces.find(
-    {
-        "address.city":city
+    const city= req.params?.city
+    const category=req.query?.category.split(",");
+    const sort=req.query.sort
+    const avgRating=req.query.avgRating
+    let restrauntList=null
+    if(category){
+        const restrauntList=await foodPlaces.find({
+      "category":{$all:category}
+        })
+        if(sort){
+            resturantList.sort()
+        }
+        
+        // if(!resturantList){
+        //     throw new APIError(500,"Database issue")
+        // }
+
+        // return res.status(200)
+        // .json(new APIResponse(200,"Data fetched successfully",resturantList))
+        
     }
-)
+    else if(avgRating){
+        const restrauntList= await foodPlaces.find({"address.city":city}).sort({rating:1})
+
+        // if(!sortedRestaurantList){
+        //     throw new APIError(500,"DB can't fetch data")
+        // }
+        
+        // return res.status(200)
+        // .json(new APIResponse(200,"List fetched Successfully",sortedRestaurantList));
+
+    }
+    else{
+        const restrauntList = await foodPlaces.find(
+            {
+                "address.city":city
+            }
+        )
+            
+    }
+
+    if(!restrauntList){
+                throw new APIError(500,"Database fetch error")
+    }
+    return res.status(200)
+        .json(200,"Data fetched Successfully",restrauntList)
+
+}
+async function getRestaurantById(req,res){
+    const restaurantId= req.params.restaurantId
+    const restrauntList = await foodPlaces.findById(restaurantId)
     if(!restrauntList){
         throw new APIError(500,"Database fetch error")
     }
@@ -19,44 +64,44 @@ async function getRestaurant(req,res){
 
 }
 
-const getRestaurantSortedByAvgRatings= async function (req,res) {
+// const getRestaurantSortedByAvgRatings= async function (req,res) {
 
-    const {city}=req?.query?.city
-    if(!city){
-        throw new APIError("City name is not available")
-    }
+//     const {city}=req?.query?.city
+//     if(!city){
+//         throw new APIError("City name is not available")
+//     }
 
-    const sortedRestaurantList= await foodPlaces.find({"address.city":city}).sort({rating:1})
+//     const sortedRestaurantList= await foodPlaces.find({"address.city":city}).sort({rating:1})
 
-    if(!sortedRestaurantList){
-        throw new APIError(500,"DB can't fetch data")
-    }
+//     if(!sortedRestaurantList){
+//         throw new APIError(500,"DB can't fetch data")
+//     }
     
-    return res.status(200)
-    .json(new APIResponse(200,"List fetched Successfully",sortedRestaurantList));
+//     return res.status(200)
+//     .json(new APIResponse(200,"List fetched Successfully",sortedRestaurantList));
 
     
-}
+// }
 
-const getRestaurantByCategories= async function (req,res,sort=null) {
+// const getRestaurantByCategories= async function (req,res,sort=null) {
 
 
-    const category=req.query?.category.split(",");
+//     const category=req.query?.category.split(",");
 
-    const resturantList=await foodPlaces.find({
-      "category":{$all:category}
-    })
-    if(sort){
-        resturantList.sort()
-    }
+//     const resturantList=await foodPlaces.find({
+//       "category":{$all:category}
+//     })
+//     if(sort){
+//         resturantList.sort()
+//     }
     
-    if(!resturantList){
-        throw new APIError(500,"Database issue")
-    }
+//     if(!resturantList){
+//         throw new APIError(500,"Database issue")
+//     }
 
-    return res.status(200)
-    .json(new APIResponse(200,"Data fetched successfully",resturantList))
-}
+//     return res.status(200)
+//     .json(new APIResponse(200,"Data fetched successfully",resturantList))
+// }
 
 async function addRestaurant(req,res){
     const details=req.body
@@ -176,20 +221,84 @@ const updateRestaurantDetails=async function(req,res){
 
 }
 
-const deletRestaurant=async function(req,res){
+const deleteRestaurant=async function(req,res){
+    const restaurantId=req.params.restaurantId
+
+    if(!restaurantId){
+        throw new APIError(400,"Delete id missing")
+    }
+
+    const deletedRecord=await foodPlaces.findByIdAndDelete(restaurantId)
+
+    if(!deletedRecord){
+        throw new APIError(500,"Deletion failed")
+    }
+    return res.status(200)
+        .json(new APIResponse(200,"Data Deletion successfull",{"DeletedData":deletedRecord}))
 
 }
-const deletRestaurantSpeciality=async function(req,res){
+
+const updateRestaurantSpeciality=async function(req,res){
+
+    const restaurantId=req.params.restaurantId
+    let speciality=req.body.speciality
+
+    if(!restaurantId){
+        throw new APIError(400,"Restaurant id missing")
+    }
+    speciality=Array.isArray(speciality)?speciality:speciality?[speciality]:[]
+    if(speciality.length===0){
+        throw new APIError(400,"No data to delete")
+    }
+
+    const updatedData=await foodPlaces.findByIdAndUpdate(
+        restaurantId,
+        { $pull:{ 
+            speciality:{ 
+                $in:speciality
+            }
+        }
+    },
+        {new :true}
+    )
+
+    if(!updatedData){
+        throw new APIError(500,"Data can't be updated")
+    }
+    return res.status(200)
+    .json(new APIResponse(200,"Speciality Updated Successfully",{"UpdatedData":updatedData}))
     
 }
 
+async function deletRestaurantSpeciality(req,res){
+    const restaurantId=req.params.restaurantId
+
+    if(!restaurantId){
+        throw new APIError(400,"Delete id missing")
+    }
+
+    const exsitingRestaurant=await foodPlaces.findById(restaurantId)
+
+    if (!existingRestaurant) {
+      throw new APIError(404, "Restaurant not found");
+    }
+
+    exsitingRestaurant.speciality=[]
+    const updatedData=await exsitingRestaurant.save()
+
+    if(!updatedData){
+        throw new APIError(500,"Data can't be updated")
+    }
+    return res.status(200)
+    .json(new APIResponse(200,"Speciality Deleted Successfully",{"UpdatedData":updatedData}))
+}
 
 export {addRestaurant
     ,getRestaurant
-    ,getRestaurantSortedByAvgRatings
-    ,getRestaurantByCategories
+    ,getRestaurantById
     ,addSpecality
     ,updateRestaurantDetails
-    
-    
+    ,deleteRestaurant
+    ,updateRestaurantSpeciality
+    ,deletRestaurantSpeciality
 }

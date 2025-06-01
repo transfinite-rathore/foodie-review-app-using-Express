@@ -24,6 +24,7 @@ const userSchema=Schema({
     },
     password:{
         type:String,
+        required:true,
         required:true
     },
     mobileNumber:{
@@ -59,7 +60,8 @@ userSchema.methods.isPasswordCorrect=async function(password) {
 userSchema.methods.generateAccessToken= async function (){
     return await jwt.sign({
         _id:this._id,
-        email:this.email
+        email:this.email,
+        isOwner:this.isOwner
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
@@ -73,6 +75,7 @@ userSchema.methods.generateRefreshToken=async function()
     return await jwt.sign(
         {
             _id:this._id,
+            isOwner:this.isOwner
 
         },
         process.env.REFRESH_TOKEN_SECRET

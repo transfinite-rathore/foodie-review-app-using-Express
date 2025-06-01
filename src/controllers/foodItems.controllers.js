@@ -1,6 +1,5 @@
 import mongoose from "mongoose"
 import { review as foodItemsReview } from "../models/foodItemsReviews.models"
-// import { ratings as foodItemsRatings } from "../models/foodItemsratings.models";
 import { foodItems } from "../models/foodItems.models.js";
 import { APIError } from "../utils/APIError.js";
 import { APIResponse } from "../utils/APIResponse.js";

@@ -20,6 +20,50 @@ const generateAccessAndRefreshTokens= async function(userId){
 }
 
 async function registerUser(req,res){
+    const {fullName,email,userName,password,mobileNumber,isOwner=false}=req.body
+    if(!fullName){
+        throw new APIError(400,"Full Name is required")
+    }
+    if(!email){
+        throw new APIError(400,"Email is required")
+    }
+    if(!userName){
+        throw new APIError(400,"Username is required")
+    }
+    if(!password){
+        throw new APIError(400,"Password is required")
+    }
+
+    const existingUser=await user.findOne({
+    $or:[{email},{userName}]
+    })
+
+    if(existingUser){
+        throw new APIError(400,"Existing User with given email or Username")
+    }
+    const newUser=await user.create({
+        fullName,
+        email,
+        userName,
+        password,
+        mobileNumber,
+        isOwner
+    })
+    const userResponse = {
+      _id: newUser._id,
+      fullName: newUser.fullName,
+      email: newUser.email,
+      userName: newUser.userName,
+      mobileNumber: newUser.mobileNumber,
+      isOwner: newUser.isOwner,
+      createdAt: newUser.createdAt
+    };
+
+    if(!newUser){
+         throw new APIError(400,"New user not created")
+    }
+    return res.status(201)
+    .json(new APIResponse(201,"New User created successfully",{"NewUser":userResponse}))
 
 }
 
@@ -43,6 +87,10 @@ async function loginUser(req,res){
         throw new APIError("No user exist with given email and username")
     }
     const uservalidation= await existedUser.isPasswordCorrect(password)
+
+    if(!uservalidation){
+        throw new APIError(400,"User validation Failed")
+    }
 
     const {accessToken,refreshToken}=await generateAccessAndRefreshTokens(existedUser._id)
 

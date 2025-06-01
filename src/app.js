@@ -18,6 +18,7 @@ connectDB()
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+
 app.use("/api/users",userRouter)
 app.use("/api/restaurant",foodPlaceRouter)
 app.use("/api/restaurant/:restaurantId",ratingRouter)
