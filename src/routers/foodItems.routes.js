@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {addFoodItems
-  ,getFoodItems
+  ,getFoodItem
   ,updateFoodItems
   ,deleteFoodItems
   ,addFoodItemCategory
@@ -10,8 +10,8 @@ import {verifyOwner } from "../middlewares/auth.middleware.js"
 
 const router =Router({mergeParams:true})
 
-router.route("/").get(getFoodItems)
-router.route("/:foodItemId").get(getFoodItems)
+router.route("/").get(getFoodItem)
+router.route("/:foodItemId").get(getFoodItem)
 
 
 //secured route

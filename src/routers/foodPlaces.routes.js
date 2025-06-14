@@ -12,17 +12,17 @@ import { upload } from "../middlewares/multer.middleware.js";
 
 const router =Router({mergeParams:true})
 
-router.get("/",upload.any(),getRestaurant)
+router.get("/",getRestaurant)
 // router.get("/by-category",getRestaurantByCategories)
 // router.get("/by-rating",getRestaurantSortedByAvgRatings)
 router.get("/:restaurantId",getRestaurantById)
 
 //secured routes
-router.post("/add",verfiyOwner,addRestaurant)
-router.delete("/:restaurantId",verfiyOwner,deleteRestaurant)
-router.delete("/:restaurantId/speciality",verfiyOwner,deletRestaurantSpeciality)
-router.put("/:restaurantId",verfiyOwner,updateRestaurantDetails)
-router.put("/:restaurantId/speciality",verfiyOwner,updateRestaurantSpeciality)
+router.post("/add",verifyOwner,addRestaurant)
+router.delete("/:restaurantId",verifyOwner,deleteRestaurant)
+router.delete("/:restaurantId/speciality",verifyOwner,deletRestaurantSpeciality)
+router.put("/:restaurantId",verifyOwner,updateRestaurantDetails)
+router.put("/:restaurantId/speciality",verifyOwner,updateRestaurantSpeciality)
 
 
 export {router}

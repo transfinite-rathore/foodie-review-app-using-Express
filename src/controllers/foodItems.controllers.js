@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-import { review as foodItemsReview } from "../models/foodItemsReviews.models"
+import { review as foodItemsReview } from "../models/foodItemsReviews.models.js"
 import { foodItems } from "../models/foodItems.models.js";
 import { APIError } from "../utils/APIError.js";
 import { APIResponse } from "../utils/APIResponse.js";
@@ -436,11 +436,11 @@ async function deleteFoodItems(req,res){
 
 
 export {addFoodItems
-  ,getFoodItems
-  ,getFoodItemsByCategory
-  ,getFoodItemsById
-  ,getFoodItemsByMaximunPositiveReviews
-  ,getFoodItemsByRating
+  ,getFoodItem
+  // ,getFoodItemsByCategory
+  // ,getFoodItemsById
+  // ,getFoodItemsByMaximunPositiveReviews
+  // ,getFoodItemsByRating
   ,updateFoodItems
   ,deleteFoodItems
   ,addFoodItemCategory

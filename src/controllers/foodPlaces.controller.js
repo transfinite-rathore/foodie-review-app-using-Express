@@ -4,14 +4,18 @@ import {foodPlaces} from "../models/foodplaces.models.js"
 
 
 
+// all restaurant list , using city Tested OK
 async function getRestaurant(req,res){
     const city= req.params?.city
-    const category=req.query?.category.split(",");
+    console.log("params",city);
+    console.log("params",city);
+    
+    const category=req.query?.category?.split(",");
     const sort=req.query.sort
     const avgRating=req.query.avgRating
     let restrauntList=null
     if(category){
-        const restrauntList=await foodPlaces.find({
+        restrauntList=await foodPlaces.find({
       "category":{$all:category}
         })
         if(sort){
@@ -27,7 +31,7 @@ async function getRestaurant(req,res){
         
     }
     else if(avgRating){
-        const restrauntList= await foodPlaces.find({"address.city":city}).sort({rating:1})
+        restrauntList= await foodPlaces.find({"address.city":city}).sort({rating:1})
 
         // if(!sortedRestaurantList){
         //     throw new APIError(500,"DB can't fetch data")
@@ -37,22 +41,28 @@ async function getRestaurant(req,res){
         // .json(new APIResponse(200,"List fetched Successfully",sortedRestaurantList));
 
     }
-    else{
-        const restrauntList = await foodPlaces.find(
+    else if(city){
+        restrauntList = await foodPlaces.find(
             {
                 "address.city":city
             }
         )
             
     }
+    else{
+        restrauntList = await foodPlaces.find()
+    }
 
     if(!restrauntList){
-                throw new APIError(500,"Database fetch error")
+        throw new APIError(500,"Database fetch error")
     }
+    // console.log(restrauntList);
+    
     return res.status(200)
-        .json(200,"Data fetched Successfully",restrauntList)
+        .json(new APIResponse(200,"Data fetched Successfully",{"restrauntList":restrauntList}))
 
 }
+
 async function getRestaurantById(req,res){
     const restaurantId= req.params.restaurantId
     const restrauntList = await foodPlaces.findById(restaurantId)
@@ -103,6 +113,8 @@ async function getRestaurantById(req,res){
 //     .json(new APIResponse(200,"Data fetched successfully",resturantList))
 // }
 
+
+//Tested OK
 async function addRestaurant(req,res){
     const details=req.body
     const ownerId=req.userId

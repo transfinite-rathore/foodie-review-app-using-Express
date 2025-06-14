@@ -3,23 +3,29 @@ import {APIResponse} from "../utils/APIResponse.js"
 import {user} from "../models/users.models.js"
 
 
-
+// Tested OK
 const generateAccessAndRefreshTokens= async function(userId){
     try {
-        const user=await UserActivation.findOne(userId)
-        const accessToken = user.generateAccessToken()
-        const refreshToken = user.generateRefreshToken()
+        const existingUser=await user.findOne(userId)
+        const accessToken = await existingUser.generateAccessToken()
+        const refreshToken = await existingUser.generateRefreshToken()
 
-        user.RefreshToken=refreshToken
-        await  user.save({validateBeforeSave:false})
+        existingUser.RefreshToken=refreshToken
+        await  existingUser.save({validateBeforeSave:false})
+        console.log(accessToken,refreshToken)
         return {accessToken,refreshToken}
         
     } catch (error) {
-        throw new APIError(500,"Issue while generating Access and Refresh Token")
+        console.log(error);
+        
+        throw new APIError(500,"Issue while generating Access and Refresh Token ",error)
     }
 }
 
+
+// Tested OK
 async function registerUser(req,res){
+    
     const {fullName,email,userName,password,mobileNumber,isOwner=false}=req.body
     if(!fullName){
         throw new APIError(400,"Full Name is required")
@@ -67,13 +73,14 @@ async function registerUser(req,res){
 
 }
 
+//Tested OK
 async function loginUser(req,res){
     // todos for login a user
     // get username email and password
     // check if username ad email exist or not
     // is user exist match password
     // if password is correct add cookies with access token and save refresh token in db
-
+    // console.log(req.body)
     const {userName,email,password}=req.body
 
     if(!userName && !email){
@@ -101,8 +108,8 @@ async function loginUser(req,res){
     }
 
     return res.status(200)
-    .cookie("accesstoken",accessToken,options)
-    .cookie("refreshtoken",refreshToken,options)
+    .cookie("accessToken",accessToken,options)
+    .cookie("refreshToken",refreshToken,options)
     .json(new APIResponse(200,"user logged in"
         ,{
             userId:existedUser._id,
@@ -111,31 +118,35 @@ async function loginUser(req,res){
     }))
 }
 
+
+//Tested OK
 async function logoutUser(req,res){
 
 
     const userId=req?.userId
-
+    
+    
     const loggedOutUser= await user.findByIdAndUpdate(
         userId,
         {
-            $set:{
-                RefreshToken: undefined
+             $unset: {
+                RefreshToken: 1 // this removes the field from document
             }
         },
         {
             new:true
         }
     ).select("-password -RefreshToken")
-
+    console.log(loggedOutUser);
     const options={
         httpOnly:true,
         secure:true
     }
 
-    res.status(200)
-    .clearCookie(accessToken,options)
-    .clearCookie(refreshToken,options)
+    return res.status(200)
+    .clearCookie('accessToken',options)
+    .clearCookie('refreshToken',options)
+    .json(new APIResponse(200,"Logout Successfull",{"user":loggedOutUser.userName}))
 }
 
 export {registerUser,loginUser,logoutUser}

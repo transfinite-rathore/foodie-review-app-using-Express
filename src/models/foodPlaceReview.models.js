@@ -22,4 +22,4 @@ const foodPlaceReviewSchema=Schema({
     }
 },{timestamps:true})
 
-export const foodPlaceReview=mongoose.model("FoodPlaceReview",foodPlaceReview)
+export const foodPlaceReview=mongoose.model("FoodPlaceReview",foodPlaceReviewSchema)

@@ -8,6 +8,7 @@ import {router as userRouter} from "./routers/user.routes.js"
 import {router as ratingRouter} from "./routers/rating.routes.js"
 
 import {upload} from "./middlewares/multer.middleware.js"
+import cookieParser from "cookie-parser"
 
 const app=express()
 
@@ -17,9 +18,9 @@ dotenv.config(
 connectDB()
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser())
 
-
-app.use("/api/users",userRouter)
+app.use("/api/users",upload.any(),userRouter)
 app.use("/api/restaurant",foodPlaceRouter)
 app.use("/api/restaurant/:restaurantId",ratingRouter)
 app.use("/api",ratingRouter)
