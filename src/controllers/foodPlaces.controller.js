@@ -4,22 +4,20 @@ import {foodPlaces} from "../models/foodplaces.models.js"
 
 
 
-// all restaurant list , using city Tested OK
+//  Tested OK(except average rating)
 async function getRestaurant(req,res){
-    const city= req.params?.city
-    console.log("params",city);
-    console.log("params",city);
-    
-    const category=req.query?.category?.split(",");
+    const city= req.query?.city
+    const speciality=req.query?.speciality?.split(",");
     const sort=req.query.sort
     const avgRating=req.query.avgRating
     let restrauntList=null
-    if(category){
+    if(speciality){
+        console.log("spe",speciality)
         restrauntList=await foodPlaces.find({
-      "category":{$all:category}
+      "speciality":{$all:speciality}
         })
         if(sort){
-            resturantList.sort()
+            restrauntList.sort()
         }
         
         // if(!resturantList){
@@ -59,12 +57,14 @@ async function getRestaurant(req,res){
     // console.log(restrauntList);
     
     return res.status(200)
-        .json(new APIResponse(200,"Data fetched Successfully",{"restrauntList":restrauntList}))
+        .json(new APIResponse(200,"Data fetched Successfully",{"listLength":restrauntList.length,"restrauntList":restrauntList}))
 
 }
 
+
+// Tested OK
 async function getRestaurantById(req,res){
-    const restaurantId= req.params.restaurantId
+    const restaurantId= req.query.restaurantId
     const restrauntList = await foodPlaces.findById(restaurantId)
     if(!restrauntList){
         throw new APIError(500,"Database fetch error")
