@@ -9,7 +9,7 @@ const foodItemsSchema=new Schema({
     description:{
         type:String,
     },
-    Price:{
+    price:{
         type:Number,
         required:true
     },
@@ -26,8 +26,7 @@ const foodItemsSchema=new Schema({
 
     },
     categories:{
-        type:Schema.Types.ObjectId,
-        ref:"category"
+        type:[String]
     }
 
 },{

@@ -52,7 +52,7 @@ export async function verifyOwner(req,res,next){
         if(!existedUser){
             throw new APIError(400,"Incorrect token")
         }
-        console.log("existedUser ",existedUser);
+        // console.log("existedUser ",existedUser);
         
         if(!existedUser.isOwner){
             throw new APIError(400,"You are not owner so not authorized for this")

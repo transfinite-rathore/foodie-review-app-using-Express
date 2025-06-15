@@ -1,8 +1,9 @@
 import { APIError } from "../utils/APIError.js"
 import {APIResponse} from "../utils/APIResponse.js"
 import {foodPlaces} from "../models/foodplaces.models.js"
+import mongoose from "mongoose";
 
-
+// All APIs are Tested OK
 
 //  Tested OK(except average rating)
 async function getRestaurant(req,res){
@@ -74,47 +75,8 @@ async function getRestaurantById(req,res){
 
 }
 
-// const getRestaurantSortedByAvgRatings= async function (req,res) {
 
-//     const {city}=req?.query?.city
-//     if(!city){
-//         throw new APIError("City name is not available")
-//     }
-
-//     const sortedRestaurantList= await foodPlaces.find({"address.city":city}).sort({rating:1})
-
-//     if(!sortedRestaurantList){
-//         throw new APIError(500,"DB can't fetch data")
-//     }
-    
-//     return res.status(200)
-//     .json(new APIResponse(200,"List fetched Successfully",sortedRestaurantList));
-
-    
-// }
-
-// const getRestaurantByCategories= async function (req,res,sort=null) {
-
-
-//     const category=req.query?.category.split(",");
-
-//     const resturantList=await foodPlaces.find({
-//       "category":{$all:category}
-//     })
-//     if(sort){
-//         resturantList.sort()
-//     }
-    
-//     if(!resturantList){
-//         throw new APIError(500,"Database issue")
-//     }
-
-//     return res.status(200)
-//     .json(new APIResponse(200,"Data fetched successfully",resturantList))
-// }
-
-
-//Tested OK
+// Tested OK
 async function addRestaurant(req,res){
     const details=req.body
     const ownerId=req.userId
@@ -175,6 +137,7 @@ async function addRestaurant(req,res){
 
 }
 
+// Tested OK
 const addSpecality=async function(req,res){
     const speciality=req.body?.speciality
     const restaurantId=req.params?.restaurantId
@@ -206,10 +169,13 @@ const addSpecality=async function(req,res){
 
 }
 
+// Tested OK
 const updateRestaurantDetails=async function(req,res){
 
     const updateList=req.body
-    const restaurantId=req.params.restaurantId
+    const restaurantId=new mongoose.Types.ObjectId(req.params.restaurantId)
+    console.log(req.body);
+    
     if((!updateList) || (Object.entries(updateList).length ===0)){
         throw new APIError(400,"Data Missing")
     }
@@ -233,6 +199,7 @@ const updateRestaurantDetails=async function(req,res){
 
 }
 
+// Tested OK
 const deleteRestaurant=async function(req,res){
     const restaurantId=req.params.restaurantId
 
@@ -250,9 +217,10 @@ const deleteRestaurant=async function(req,res){
 
 }
 
-const updateRestaurantSpeciality=async function(req,res){
+// Tested OK
+const deleteRestaurantSpeciality=async function(req,res){
 
-    const restaurantId=req.params.restaurantId
+    let restaurantId=req.params.restaurantId
     let speciality=req.body.speciality
 
     if(!restaurantId){
@@ -262,7 +230,13 @@ const updateRestaurantSpeciality=async function(req,res){
     if(speciality.length===0){
         throw new APIError(400,"No data to delete")
     }
+    restaurantId=new mongoose.Types.ObjectId(restaurantId)
+    // console.log("id ",restaurantId,typeof restaurantId);
+    
 
+    // const details=await foodPlaces.find({_id:restaurantId})
+    // console.log("details ",details);
+    console.log("specality ",speciality)
     const updatedData=await foodPlaces.findByIdAndUpdate(
         restaurantId,
         { $pull:{ 
@@ -273,7 +247,7 @@ const updateRestaurantSpeciality=async function(req,res){
     },
         {new :true}
     )
-
+    console.log(updatedData)
     if(!updatedData){
         throw new APIError(500,"Data can't be updated")
     }
@@ -282,7 +256,9 @@ const updateRestaurantSpeciality=async function(req,res){
     
 }
 
-async function deletRestaurantSpeciality(req,res){
+
+//Tested OK
+async function deleteAllRestaurantSpeciality(req,res){
     const restaurantId=req.params.restaurantId
 
     if(!restaurantId){
@@ -291,7 +267,7 @@ async function deletRestaurantSpeciality(req,res){
 
     const exsitingRestaurant=await foodPlaces.findById(restaurantId)
 
-    if (!existingRestaurant) {
+    if (!exsitingRestaurant) {
       throw new APIError(404, "Restaurant not found");
     }
 
@@ -311,6 +287,49 @@ export {addRestaurant
     ,addSpecality
     ,updateRestaurantDetails
     ,deleteRestaurant
-    ,updateRestaurantSpeciality
-    ,deletRestaurantSpeciality
+    ,deleteRestaurantSpeciality
+    ,deleteAllRestaurantSpeciality
 }
+
+
+
+
+
+// const getRestaurantSortedByAvgRatings= async function (req,res) {
+
+//     const {city}=req?.query?.city
+//     if(!city){
+//         throw new APIError("City name is not available")
+//     }
+
+//     const sortedRestaurantList= await foodPlaces.find({"address.city":city}).sort({rating:1})
+
+//     if(!sortedRestaurantList){
+//         throw new APIError(500,"DB can't fetch data")
+//     }
+    
+//     return res.status(200)
+//     .json(new APIResponse(200,"List fetched Successfully",sortedRestaurantList));
+
+    
+// }
+
+// const getRestaurantByCategories= async function (req,res,sort=null) {
+
+
+//     const category=req.query?.category.split(",");
+
+//     const resturantList=await foodPlaces.find({
+//       "category":{$all:category}
+//     })
+//     if(sort){
+//         resturantList.sort()
+//     }
+    
+//     if(!resturantList){
+//         throw new APIError(500,"Database issue")
+//     }
+
+//     return res.status(200)
+//     .json(new APIResponse(200,"Data fetched successfully",resturantList))
+// }
